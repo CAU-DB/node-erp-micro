@@ -7,31 +7,28 @@ class BaseModel {
     }
 
     async findAll() {
-        const [rows] = await db.query(`SELECT * FROM ${this.tableName}`);
+        const [rows] = await db.query(`SELECT * FROM \`${this.tableName}\``);
         return rows;
     }
 
     async findById(id, idField) {
         console.log(id, idField);
-        const [rows] = await db.query(`SELECT * FROM ${this.tableName} WHERE ${idField} = ?`, [id]);
+        const [rows] = await db.query(`SELECT * FROM \`${this.tableName}\` WHERE ${idField} = ?`, [id]);
         return rows[0];
     }
 
     async create(data) {
-        const [result] = await db.query(`INSERT INTO ${this.tableName} SET ?`, [data]);
+        const [result] = await db.query(`INSERT INTO \`${this.tableName}\` SET ?`, [data]);
         return result;
     }
 
     async update(id, data, idField) {
-        const [result] = await db.query(`UPDATE ${this.tableName} SET ? WHERE ${idField} = ?`, [
-            data,
-            id,
-        ]);
+        const [result] = await db.query(`UPDATE \`${this.tableName}\` SET ? WHERE ${idField} = ?`, [data, id]);
         return result;
     }
 
     async delete(id, idField) {
-        const [result] = await db.query(`DELETE FROM ${this.tableName} WHERE ${idField} = ?`, [id]);
+        const [result] = await db.query(`DELETE FROM \`${this.tableName}\` WHERE ${idField} = ?`, [id]);
         return result;
     }
 }

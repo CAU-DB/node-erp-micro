@@ -1,10 +1,10 @@
-const models = require("../models");
+const models = require('../models');
 
 class ApiError extends Error {
     constructor(statusCode, message) {
         super(message);
         this.statusCode = statusCode;
-        this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
         Error.captureStackTrace(this, this.constructor);
     }
 }
@@ -14,7 +14,7 @@ const createController = (Model) => ({
         try {
             const items = await Model.findAll();
             res.status(200).json({
-                status: "success",
+                status: 'success',
                 data: items,
             });
         } catch (err) {
@@ -26,10 +26,10 @@ const createController = (Model) => ({
         try {
             const item = await Model.findById(req.params.id, Model.idField);
             if (!item) {
-                throw new ApiError(404, "Item not found");
+                throw new ApiError(404, 'Item not found');
             }
             res.status(200).json({
-                status: "success",
+                status: 'success',
                 data: item,
             });
         } catch (err) {
@@ -41,7 +41,7 @@ const createController = (Model) => ({
         try {
             const result = await Model.create(req.body);
             res.status(201).json({
-                status: "success",
+                status: 'success',
                 data: result,
             });
         } catch (err) {
@@ -51,16 +51,12 @@ const createController = (Model) => ({
 
     update: async (req, res, next) => {
         try {
-            const result = await Model.update(
-                req.params.id,
-                req.body,
-                Model.idField
-            );
+            const result = await Model.update(req.params.id, req.body, Model.idField);
             if (result.affectedRows === 0) {
-                throw new ApiError(404, "Item not found");
+                throw new ApiError(404, 'Item not found');
             }
             res.status(200).json({
-                status: "success",
+                status: 'success',
                 data: result,
             });
         } catch (err) {
@@ -72,7 +68,7 @@ const createController = (Model) => ({
         try {
             const result = await Model.delete(req.params.id, Model.idField);
             if (result.affectedRows === 0) {
-                throw new ApiError(404, "Item not found");
+                throw new ApiError(404, 'Item not found');
             }
             res.status(204).send();
         } catch (err) {

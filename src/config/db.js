@@ -24,7 +24,7 @@ bank_account
 basic_salary
 budget
 customer
-departments
+department
 employee
 employee_detail
 factory

@@ -1,128 +1,175 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>ERP-Micro API Tester</title>
-    <style>
-        .model-section {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-        .result {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            white-space: pre-wrap;
-        }
-    </style>
-</head>
-<body>
-    <h1>ERP-Micro API Tester</h1>
-    
-    <div class="model-section">
-        <h2>Employees</h2>
-        <button onclick="getAll('employees')">Get All</button>
-        <br><br>
-        
-        <input type="text" id="employees-id" placeholder="Employee ID">
-        <button onclick="getOne('employees')">Get One</button>
-        <br><br>
-        
-        <textarea id="employees-data" placeholder="Employee Data (JSON)"></textarea>
-        <button onclick="create('employees')">Create</button>
-        <br><br>
-        
-        <input type="text" id="employees-update-id" placeholder="Employee ID">
-        <textarea id="employees-update-data" placeholder="Update Data (JSON)"></textarea>
-        <button onclick="update('employees')">Update</button>
-        <br><br>
-        
-        <input type="text" id="employees-delete-id" placeholder="Employee ID">
-        <button onclick="deleteItem('employees')">Delete</button>
-        
-        <div id="employees-result" class="result"></div>
-    </div>
-
-    <script>
-        const API_URL = 'http://localhost:3000/api/v1';
-
-        async function getAll(resource) {
-            try {
-                const response = await fetch(`${API_URL}/${resource}`);
-                const data = await response.json();
-                document.getElementById(`${resource}-result`).textContent = 
-                    JSON.stringify(data, null, 2);
-            } catch (error) {
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Error: ${error.message}`;
+    <head>
+        <title>ERP-Micro API Tester</title>
+        <style>
+            .model-section {
+                margin: 20px;
+                padding: 10px;
+                border: 1px solid #ccc;
             }
-        }
-
-        async function getOne(resource) {
-            const id = document.getElementById(`${resource}-id`).value;
-            try {
-                const response = await fetch(`${API_URL}/${resource}/${id}`);
-                const data = await response.json();
-                document.getElementById(`${resource}-result`).textContent = 
-                    JSON.stringify(data, null, 2);
-            } catch (error) {
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Error: ${error.message}`;
+            .result {
+                margin-top: 10px;
+                padding: 10px;
+                background-color: #f0f0f0;
+                white-space: pre-wrap;
             }
-        }
-
-        async function create(resource) {
-            const data = document.getElementById(`${resource}-data`).value;
-            try {
-                const response = await fetch(`${API_URL}/${resource}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: data
-                });
-                const result = await response.json();
-                document.getElementById(`${resource}-result`).textContent = 
-                    JSON.stringify(result, null, 2);
-            } catch (error) {
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Error: ${error.message}`;
+            select {
+                margin-bottom: 20px;
+                padding: 5px;
+                width: 200px;
             }
-        }
+        </style>
+    </head>
+    <body>
+        <h1>ERP-Micro API Tester</h1>
 
-        async function update(resource) {
-            const id = document.getElementById(`${resource}-update-id`).value;
-            const data = document.getElementById(`${resource}-update-data`).value;
-            try {
-                const response = await fetch(`${API_URL}/${resource}/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: data
-                });
-                const result = await response.json();
-                document.getElementById(`${resource}-result`).textContent = 
-                    JSON.stringify(result, null, 2);
-            } catch (error) {
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Error: ${error.message}`;
-            }
-        }
+        <select id="modelSelect" onchange="updateFormIds()">
+            <option value="account">Account</option>
+            <option value="account-period">Account Period</option>
+            <option value="approval">Approval</option>
+            <option value="attendance">Attendance</option>
+            <option value="bank-account">Bank Account</option>
+            <option value="basic-salary">Basic Salary</option>
+            <option value="budget">Budget</option>
+            <option value="customer">Customer</option>
+            <option value="department">Department</option>
+            <option value="employee">Employee</option>
+            <option value="employee-detail">Employee Detail</option>
+            <option value="factory">Factory</option>
+            <option value="inventory">Inventory</option>
+            <option value="journal">Journal</option>
+            <option value="order">Order</option>
+            <option value="order-product">Order Product</option>
+            <option value="participation">Participation</option>
+            <option value="pay">Pay</option>
+            <option value="pay-category">Pay Category</option>
+            <option value="payment">Payment</option>
+            <option value="payment-card">Payment Card</option>
+            <option value="permission">Permission</option>
+            <option value="position-history">Position History</option>
+            <option value="product">Product</option>
+            <option value="production">Production</option>
+            <option value="project">Project</option>
+            <option value="status-history">Status History</option>
+            <option value="supplier">Supplier</option>
+            <option value="supply">Supply</option>
+            <option value="transaction">Transaction</option>
+            <option value="use-account">Use Account</option>
+            <option value="warehouse">Warehouse</option>
+        </select>
 
-        async function deleteItem(resource) {
-            const id = document.getElementById(`${resource}-delete-id`).value;
-            try {
-                const response = await fetch(`${API_URL}/${resource}/${id}`, {
-                    method: 'DELETE'
-                });
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Deleted successfully`;
-            } catch (error) {
-                document.getElementById(`${resource}-result`).textContent = 
-                    `Error: ${error.message}`;
+        <div class="model-section">
+            <h2 id="modelTitle">Model Operations</h2>
+            <button onclick="getAll()">Get All</button>
+            <br /><br />
+
+            <input type="text" id="item-id" placeholder="ID" />
+            <button onclick="getOne()">Get One</button>
+            <br /><br />
+
+            <textarea id="item-data" placeholder="Data (JSON)"></textarea>
+            <button onclick="create()">Create</button>
+            <br /><br />
+
+            <input type="text" id="item-update-id" placeholder="ID" />
+            <textarea id="item-update-data" placeholder="Update Data (JSON)"></textarea>
+            <button onclick="update()">Update</button>
+            <br /><br />
+
+            <input type="text" id="item-delete-id" placeholder="ID" />
+            <button onclick="deleteItem()">Delete</button>
+
+            <div id="result" class="result"></div>
+        </div>
+
+        <script>
+            const API_URL = 'http://localhost:3000/api/v1';
+
+            function getCurrentModel() {
+                return document.getElementById('modelSelect').value;
             }
-        }
-    </script>
-</body>
+
+            function updateFormIds() {
+                const model = getCurrentModel();
+                document.getElementById('modelTitle').textContent =
+                    model
+                        .split('-')
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ') + ' Operations';
+            }
+
+            async function getAll() {
+                const resource = getCurrentModel();
+                try {
+                    const response = await fetch(`${API_URL}/${resource}`);
+                    const data = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
+            }
+
+            async function getOne() {
+                const resource = getCurrentModel();
+                const id = document.getElementById('item-id').value;
+                try {
+                    const response = await fetch(`${API_URL}/${resource}/${id}`);
+                    const data = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
+            }
+
+            async function create() {
+                const resource = getCurrentModel();
+                const data = document.getElementById('item-data').value;
+                try {
+                    const response = await fetch(`${API_URL}/${resource}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: data,
+                    });
+                    const result = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
+            }
+
+            async function update() {
+                const resource = getCurrentModel();
+                const id = document.getElementById('item-update-id').value;
+                const data = document.getElementById('item-update-data').value;
+                try {
+                    const response = await fetch(`${API_URL}/${resource}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: data,
+                    });
+                    const result = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
+            }
+
+            async function deleteItem() {
+                const resource = getCurrentModel();
+                const id = document.getElementById('item-delete-id').value;
+                try {
+                    const response = await fetch(`${API_URL}/${resource}/${id}`, {
+                        method: 'DELETE',
+                    });
+                    document.getElementById('result').textContent = 'Deleted successfully';
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
+            }
+
+            // Initialize form
+            updateFormIds();
+        </script>
+    </body>
 </html>
