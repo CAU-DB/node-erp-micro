@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const router = require('./routes');
 const path = require('path');
+const router = require('./routes');
+const db = require('./config/db');
+const fs = require('fs');
 
 const app = express();
 
@@ -9,6 +11,20 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/v1', router);
+app.use('/api/v1/add-sample-data', async (_req, res) => {
+    try {
+        await db.query(`CALL AddSampleData();`);
+        res.json({
+            status: 'success',
+            message: 'Sample data added successfully',
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message,
+        });
+    }
+});
 app.use(
     express.static(path.join(__dirname, 'public'), {
         extensions: ['html'],

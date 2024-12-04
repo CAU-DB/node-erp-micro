@@ -14,8 +14,9 @@
                 background-color: #f0f0f0;
                 white-space: pre-wrap;
             }
+            button.btn-large,
             select {
-                margin-bottom: 20px;
+                margin: 5px 0px 5px 20px;
                 padding: 5px;
                 width: 200px;
             }
@@ -23,6 +24,8 @@
     </head>
     <body>
         <h1>ERP-Micro API Tester</h1>
+
+        <button class="btn-large" onclick="addSampleData();">Add Sample Data</button>
 
         <select id="modelSelect" onchange="updateFormIds()">
             <option value="account">Account</option>
@@ -88,6 +91,16 @@
 
             function getCurrentModel() {
                 return document.getElementById('modelSelect').value;
+            }
+
+            async function addSampleData() {
+                try {
+                    const response = await fetch(`${API_URL}/add-sample-data`);
+                    const data = await response.json();
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                } catch (error) {
+                    document.getElementById('result').textContent = `Error: ${error.message}`;
+                }
             }
 
             function updateFormIds() {
