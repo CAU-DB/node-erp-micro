@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ERP-Micro API Tester</title>
+    <style>
+        .model-section {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>ERP-Micro API Tester</h1>
+    
+    <div class="model-section">
+        <h2>Employees</h2>
+        <button onclick="getAll('employees')">Get All</button>
+        <br><br>
+        
+        <input type="text" id="employees-id" placeholder="Employee ID">
+        <button onclick="getOne('employees')">Get One</button>
+        <br><br>
+        
+        <textarea id="employees-data" placeholder="Employee Data (JSON)"></textarea>
+        <button onclick="create('employees')">Create</button>
+        <br><br>
+        
+        <input type="text" id="employees-update-id" placeholder="Employee ID">
+        <textarea id="employees-update-data" placeholder="Update Data (JSON)"></textarea>
+        <button onclick="update('employees')">Update</button>
+        <br><br>
+        
+        <input type="text" id="employees-delete-id" placeholder="Employee ID">
+        <button onclick="deleteItem('employees')">Delete</button>
+        
+        <div id="employees-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/v1';
+
+        async function getAll(resource) {
+            try {
+                const response = await fetch(`${API_URL}/${resource}`);
+                const data = await response.json();
+                document.getElementById(`${resource}-result`).textContent = 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+
+        async function getOne(resource) {
+            const id = document.getElementById(`${resource}-id`).value;
+            try {
+                const response = await fetch(`${API_URL}/${resource}/${id}`);
+                const data = await response.json();
+                document.getElementById(`${resource}-result`).textContent = 
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+
+        async function create(resource) {
+            const data = document.getElementById(`${resource}-data`).value;
+            try {
+                const response = await fetch(`${API_URL}/${resource}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: data
+                });
+                const result = await response.json();
+                document.getElementById(`${resource}-result`).textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+
+        async function update(resource) {
+            const id = document.getElementById(`${resource}-update-id`).value;
+            const data = document.getElementById(`${resource}-update-data`).value;
+            try {
+                const response = await fetch(`${API_URL}/${resource}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: data
+                });
+                const result = await response.json();
+                document.getElementById(`${resource}-result`).textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+
+        async function deleteItem(resource) {
+            const id = document.getElementById(`${resource}-delete-id`).value;
+            try {
+                const response = await fetch(`${API_URL}/${resource}/${id}`, {
+                    method: 'DELETE'
+                });
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Deleted successfully`;
+            } catch (error) {
+                document.getElementById(`${resource}-result`).textContent = 
+                    `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
